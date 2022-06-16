@@ -1,9 +1,7 @@
 homepage: "https://www.cardinalpath.com/"
-documentation: " "
+documentation: "https://github.com/CardinalPath/gtm-template-ga-queryparam-stripper"
 versions:
 # Latest version
-- sha:  
-    changeNotes: 5 | removal of debug and environment fields
+- sha:  ef2c3c90e79a0894ff80f5d311b8b58c55040e73
+    changeNotes: 1 | initial release
 # Olderversion
- - sha: 
-   changeNotes: 4 | Friendlier labels & code hints, changed field names to 'Measurement ID' instead of 'Product ID'.
