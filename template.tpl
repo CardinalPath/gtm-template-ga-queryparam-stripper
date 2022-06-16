@@ -230,7 +230,7 @@ scenarios:
 - name: '[INCLUDE] multiple params'
   code: |-
     const test_data = {
-      document_location:"https://www.broadcom.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true",
+      document_location:"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true",
       param_exclusions:"foo,sourceurl",
       param_setting:"include",
       lowercase:true
@@ -241,39 +241,39 @@ scenarios:
 
     // Verify that the variable returns a result.
     assertThat(result).isNotEqualTo(undefined);
-    assertThat(result).isEqualTo("https://www.broadcom.com/404-symantec?test=true&app=true");
+    assertThat(result).isEqualTo("https://www.domain.com/404-symantec?test=true&app=true");
 - name: '[INCLUDE] one param'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec?test=true\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?test=true\"\
     ,\n  param_exclusions:\"foo,test\",\n  param_setting:\"include\"\n  \n};\n\n//\
     \ Call runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[INCLUDE] no params'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec\"\
     ,\n  param_exclusions:\"foo\",\n  param_setting:\"include\"\n  \n};\n\n// Call\
     \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[INCLUDE] folder'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec/?test=true\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec/?test=true\"\
     ,\n  param_exclusions:\"foo,test\",\n  param_setting:\"include\"\n  \n};\n\n//\
     \ Call runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);\n\
     // Call runCode to run the template's code."
 - name: '[EXCLUDE] multiple parameters'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true\"\
     ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
     \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[EXCLUDE] gclid'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
     ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
     \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[EXCLUE] without whitelist'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.broadcom.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
     ,\n // params_allowed:\"\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call runCode\
     \ to run the template's code.\nlet result = runCode(mockData);\n\n// Verify that\
     \ the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
-    assertThat(result).isEqualTo(\"https://www.broadcom.com/404-symantec\");"
+    assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec\");"
 
 
 ___NOTES___
