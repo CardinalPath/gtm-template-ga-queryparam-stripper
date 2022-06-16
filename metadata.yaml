@@ -3,5 +3,5 @@ documentation: "https://github.com/CardinalPath/gtm-template-ga-queryparam-strip
 versions:
 # Latest version
 - sha:  ef2c3c90e79a0894ff80f5d311b8b58c55040e73
-    changeNotes: 1 | initial release
+  changeNotes: 1 | initial release
 # Olderversion
