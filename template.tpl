@@ -88,25 +88,20 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
-// Enter your template code here.
 const log = require('logToConsole');
-var url_noparams;  // url with query params removed
 const decode = require('decodeUriComponent');
+const parseUrl = require('parseUrl');
+const Object = require('Object');
 
-function getQueryVariable(query,variable) {
-  if(data.lowercase){
-    query=query.toLowerCase();
-  }
-    var vars = query.split('&');
-    for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split('=');
-      if(data.lowercase){
-        pair[0]=pair[0].toLowerCase();
-      }
-        if (decode(pair[0]) == variable) {
-            return decode(pair[1]);
-        }
-    }
+function getQueryVariable(query_param) {
+  return urlObject.searchParams[query_param];
+}
+
+function toLowerKeys(obj) {
+  return Object.keys(obj).reduce((accumulator, key) => {
+    accumulator[key.toLowerCase()] = obj[key];
+    return accumulator;
+  }, {});
 }
 
 function getFinalURL(data){  // omit query parmams that should be excluded
@@ -117,93 +112,83 @@ function getFinalURL(data){  // omit query parmams that should be excluded
     }else{
       output+="&";
     }
-    output+=data[i];
+    output+=data[i]+"="+getQueryVariable(data[i]);
 }
   return output;
 }
 
+const urlObject = parseUrl(data.document_location);
+data.url_noparams=urlObject.protocol+"//"+urlObject.hostname+urlObject.pathname;
+data.detected_query_params_array = Object.entries(urlObject.searchParams);
+
 if(data.lowercase){
   data.document_location=data.document_location.toLowerCase();
+  urlObject.searchParams=toLowerKeys(urlObject.searchParams);
 }
 
 if(data.param_setting=="exclude"){
   /* 
        exclude all query params except those on the white list 
   */
+  
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected 
-    if(data.allowed_param_list!=undefined){
-    data.allowed_param_list=data.params_allowed.split(",");
-    data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term");
-    log(data.allowed_param_list);
-    data.allowed_params_detected=[];  
+    if(data.params_allowed){
+      data.allowed_param_list=data.params_allowed.split(",");
+    }
+     log("allowed_param_list",data.allowed_param_list);
     
+    if(data.allowed_param_list!=undefined){
+ data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid");
+    data.allowed_params_detected=[];  
     for (let i = 0; i < data.allowed_param_list.length; i++) {
-   
-      if(getQueryVariable(data.document_location,data.allowed_param_list[i])!=undefined){         data.allowed_params_detected.push(data.allowed_param_list[i].toLowerCase()+"="+getQueryVariable(data.document_location,data.allowed_param_list[i]));
+      if(getQueryVariable(data.allowed_param_list[i])!=undefined){  
+        data.allowed_params_detected.push(data.allowed_param_list[i]);
       }
     }
     }
-    var base_url=data.document_location.split("?")[0];
     
     if(data.allowed_params_detected && data.allowed_params_detected.length>0){
-      data.qsp="";
-      for (let j = 0; j < data.allowed_params_detected.length; j++) {
-        if(j==0){
-          data.qsp+="?";
-        }else{
-          data.qsp+="&";
-        }
-        data.qsp+=data.allowed_params_detected[j];
-      }
-       log('exclude most params', data);
-      return base_url+data.qsp;
-
+      return data.url_noparams+getFinalURL(data.allowed_params_detected);
     }else{
-       log('exclude most params', data);
-       return base_url;
+     log('exclude most params', data);
+       return data.url_noparams;
     }
   
   }else{
     // no params detected
-    log('data =', data);
+    //log('data =', data);
     return data.document_location;
   } 
   
 }else{
   /* 
-     only specific query params will be excluded 
-     
+     only specific query params will be excluded     
   */
    log('include =', data);
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected
-    data.params=data.document_location.split("?")[1];
-    url_noparams=data.document_location.split("?")[0];
-    data.params=data.params.split("&");
+    data.params=data.detected_query_params_array;
     data.allowed_params=[];
     
     if(data.lowercase){      
-      log("include: lower case enabled");
+     // log("include: lower case enabled");
       data.param_exclusions=data.param_exclusions.toLowerCase();
     }
-    var key;  
-    for (let i = 0; i < data.params.length; i++) {   
-      if(data.param_exclusions.indexOf(data.params[i].split("=")[0])<0){
-        log("include, index>0",data.params[i]);
-       data.allowed_params.push(data.params[i]);
+    
+    // loop thru each parameter, identify parameters allowed.
+    for (let i = 0; i < data.detected_query_params_array.length; i++) {        
+      if(getQueryVariable(data.detected_query_params_array[i][0])!==undefined && data.param_exclusions.indexOf(data.detected_query_params_array[i][0])<0){
+        data.allowed_params.push(data.detected_query_params_array[i][0]);
       }
     }
     
     log('exclude some params =', data);
-      return url_noparams+getFinalURL(data.allowed_params);
-    
-    
+      return data.url_noparams+getFinalURL(data.allowed_params); 
   }else{
     // no params detected
     log('exclude some params =', data);
     return data.document_location;
   } 
 }
-
 
 ___WEB_PERMISSIONS___
 
