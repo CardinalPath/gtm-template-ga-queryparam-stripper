@@ -2,6 +2,8 @@ homepage: "https://www.cardinalpath.com/"
 documentation: "https://github.com/CardinalPath/gtm-template-ga-queryparam-stripper/blob/main/README.md"
 versions:
 # Latest version
+- sha:  9d16a73e3754fa848feb6824a17590db87fd50a8
+  changeNotes: 1.1 | code changes to reference parseUrl api
+# Olderversion
 - sha:  f8499989ff099df2cd3847946993781df24f88d3
   changeNotes: 1 | initial release
-# Olderversion
