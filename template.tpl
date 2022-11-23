@@ -130,15 +130,14 @@ if(data.param_setting=="exclude"){
   /* 
        exclude all query params except those on the white list 
   */
-  
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected 
     if(data.params_allowed){
       data.allowed_param_list=data.params_allowed.split(",");
+    }else{
+      data.allowed_param_list=[];
     }
-     log("allowed_param_list",data.allowed_param_list);
-    
+    data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid");
     if(data.allowed_param_list!=undefined){
- data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid");
     data.allowed_params_detected=[];  
     for (let i = 0; i < data.allowed_param_list.length; i++) {
       if(getQueryVariable(data.allowed_param_list[i])!=undefined){  
@@ -150,13 +149,12 @@ if(data.param_setting=="exclude"){
     if(data.allowed_params_detected && data.allowed_params_detected.length>0){
       return data.url_noparams+getFinalURL(data.allowed_params_detected);
     }else{
-     log('exclude most params', data);
+ //    log('exclude most params', data);
        return data.url_noparams;
     }
   
   }else{
     // no params detected
-    //log('data =', data);
     return data.document_location;
   } 
   
@@ -164,13 +162,10 @@ if(data.param_setting=="exclude"){
   /* 
      only specific query params will be excluded     
   */
-   log('include =', data);
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected
     data.params=data.detected_query_params_array;
-    data.allowed_params=[];
-    
+    data.allowed_params=[];   
     if(data.lowercase){      
-     // log("include: lower case enabled");
       data.param_exclusions=data.param_exclusions.toLowerCase();
     }
     
@@ -180,16 +175,11 @@ if(data.param_setting=="exclude"){
         data.allowed_params.push(data.detected_query_params_array[i][0]);
       }
     }
-    
-    log('exclude some params =', data);
       return data.url_noparams+getFinalURL(data.allowed_params); 
   }else{
-    // no params detected
-    log('exclude some params =', data);
     return data.document_location;
   } 
 }
-
 ___WEB_PERMISSIONS___
 
 [
@@ -218,6 +208,7 @@ ___WEB_PERMISSIONS___
 
 
 ___TESTS___
+
 
 scenarios:
 - name: '[INCLUDE] multiple params'
@@ -249,8 +240,25 @@ scenarios:
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec/?test=true\"\
     ,\n  param_exclusions:\"foo,test\",\n  param_setting:\"include\"\n  \n};\n\n//\
     \ Call runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
-    \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);\n\
-    // Call runCode to run the template's code."
+    \n// Verify that the variable returns a result.\nassertThat(variableResult).isEqualTo(\"\
+    https://www.domain.com/404-symantec/\");\n// Call runCode to run the template's\
+    \ code."
+- name: '[EXCLUDE]utm'
+  code: |-
+    const test_data = {
+      document_location:"https://www.domain.com/?utm_medium=test",
+      param_exclusions:"",
+      params_allowed:"",
+      param_setting:"exclude",
+      lowercase:true
+    };
+
+    // Call runCode to run the template's code.
+    let result = runCode(test_data);
+
+    // Verify that the variable returns a result.
+    assertThat(result).isNotEqualTo(undefined);
+    assertThat(result).isEqualTo("https://www.domain.com/?utm_medium=test");
 - name: '[EXCLUDE] multiple parameters'
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true\"\
     ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
@@ -263,10 +271,11 @@ scenarios:
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[EXCLUE] without whitelist'
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
-    ,\n // params_allowed:\"\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call runCode\
+    ,\n  //params_allowed:\"\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call runCode\
     \ to run the template's code.\nlet result = runCode(mockData);\n\n// Verify that\
     \ the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
-    assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec\");"
+    assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec?gclid=1234\"\
+    );"
 
 
 ___NOTES___
