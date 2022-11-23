@@ -45,7 +45,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "LABEL",
             "name": "note",
-            "displayName": "These parameters are automatically allowed: \ngclid, gclsrc, utm_source, utm_content, utm_id,utm_medium,utm_campaign,utm_term"
+            "displayName": "These parameters are automatically allowed: \ngclid, gclsrc, utm_source, utm_content, utm_id,utm_medium,utm_campaign,utm_term,utm_id,dclid,gclsrc,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid"
           }
         ]
       },
@@ -136,7 +136,7 @@ if(data.param_setting=="exclude"){
     }else{
       data.allowed_param_list=[];
     }
-    data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid");
+    data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid","utm_id","dclid","gclsrc","utm_source_platform","utm_creative_format","utm_marketing_tactic","srsltid");
     if(data.allowed_param_list!=undefined){
     data.allowed_params_detected=[];  
     for (let i = 0; i < data.allowed_param_list.length; i++) {
