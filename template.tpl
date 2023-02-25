@@ -45,7 +45,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "LABEL",
             "name": "note",
-            "displayName": "These parameters are automatically allowed: \ngclid, gclsrc, utm_source, utm_content, utm_id,utm_medium,utm_campaign,utm_term,utm_id,dclid,gclsrc,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid"
+            "displayName": "These parameters are automatically allowed:  dclid,gclsrc,gclid,gbraid,wbraid,gclsrc,srsltid,utm_source, utm_content, utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic"
           }
         ]
       },
@@ -81,20 +81,44 @@ ___TEMPLATE_PARAMETERS___
     "type": "CHECKBOX",
     "name": "lowercase",
     "checkboxText": "Force  to Lowercase",
-    "simpleValueType": true
+    "simpleValueType": true,
+    "subParams": [
+      {
+        "type": "TEXT",
+        "name": "lowercase_exclusions",
+        "displayName": "Lower Case Exclusions",
+        "simpleValueType": true,
+        "enablingConditions": [
+          {
+            "paramName": "lowercase",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ],
+        "defaultValue": "dclid,gclsrc,gclid,gbraid,wbraid",
+        "help": "These parameters will not be converted to lower case",
+        "valueHint": "Use comma seperated values"
+      }
+    ]
   }
 ]
-
-
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
-const log = require('logToConsole');
+//const log = require('logToConsole');
 const decode = require('decodeUriComponent');
 const parseUrl = require('parseUrl');
 const Object = require('Object');
+var case_sensitive_params=data.lowercase_exclusions;  // we don't want these forced to lower case values.
+if(data.lowercase_exclusions==undefined){
+  case_sensitive_params="";
+}
 
 function getQueryVariable(query_param) {
-  return urlObject.searchParams[query_param];
+  if(urlObject.searchParams[query_param]!=undefined && data.lowercase && case_sensitive_params.indexOf(query_param)<0){
+    return urlObject.searchParams[query_param].toLowerCase();
+  }else{  
+    return urlObject.searchParams[query_param];
+  }
 }
 
 function toLowerKeys(obj) {
@@ -132,15 +156,17 @@ if(data.param_setting=="exclude"){
   */
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected 
     if(data.params_allowed){
+      
       data.allowed_param_list=data.params_allowed.split(",");
     }else{
       data.allowed_param_list=[];
     }
-    data.allowed_param_list.push("gclid","gclsrc","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","wbraid","gbraid","utm_id","dclid","gclsrc","utm_source_platform","utm_creative_format","utm_marketing_tactic","srsltid");
+    data.allowed_param_list.push("gbraid","dclid","gclsrc","gclid","wbraid","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","utm_source_platform","utm_creative_format","utm_marketing_tactic","srsltid");
     if(data.allowed_param_list!=undefined){
     data.allowed_params_detected=[];  
     for (let i = 0; i < data.allowed_param_list.length; i++) {
       if(getQueryVariable(data.allowed_param_list[i])!=undefined){  
+     
         data.allowed_params_detected.push(data.allowed_param_list[i]);
       }
     }
@@ -158,10 +184,8 @@ if(data.param_setting=="exclude"){
     return data.document_location;
   } 
   
-}else{
-  /* 
-     only specific query params will be excluded     
-  */
+}else{  /* EXCLUDE ALL but allow ones that are specified */
+
   if(data.document_location && data.document_location.indexOf("?")>=0){ // query params detected
     data.params=data.detected_query_params_array;
     data.allowed_params=[];   
@@ -180,6 +204,7 @@ if(data.param_setting=="exclude"){
     return data.document_location;
   } 
 }
+
 ___WEB_PERMISSIONS___
 
 [
@@ -246,29 +271,41 @@ scenarios:
 - name: '[EXCLUDE]utm'
   code: |-
     const test_data = {
-      document_location:"https://www.domain.com/?utm_medium=test",
+      document_location:"https://www.domain.com/?utm_medium=TEST&gclid=abcdefGHIJ1234",
       param_exclusions:"",
       params_allowed:"",
       param_setting:"exclude",
-      lowercase:true
+      lowercase:true,
+      lowercase_exclusions:"gclid"
     };
 
     // Call runCode to run the template's code.
     let result = runCode(test_data);
 
     // Verify that the variable returns a result.
-    assertThat(result).isNotEqualTo(undefined);
-    assertThat(result).isEqualTo("https://www.domain.com/?utm_medium=test");
+    //assertThat(result).isNotEqualTo(undefined);
+    assertThat(result).isEqualTo("https://www.domain.com/?gclid=abcdefGHIJ1234&utm_medium=test");
 - name: '[EXCLUDE] multiple parameters'
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true\"\
     ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
     \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
     \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[EXCLUDE] gclid'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
-    ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
-    \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
-    \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
+  code: |-
+    const mockData = {
+      // Mocked field values
+      document_location:"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=BAR&test=true&app=true&gclid=abcdefGHIJ1234",
+      params_allowed:"foo,test",
+      param_setting:"exclude",
+      lowercase:true,
+      lowercase_exclusions:"gclid"
+    };
+
+    // Call runCode to run the template's code.
+    let variableResult = runCode(mockData);
+
+    // Verify that the variable returns a result.
+    assertThat(variableResult).isStrictlyEqualTo("https://www.domain.com/404-symantec?foo=bar&test=true&gclid=abcdefGHIJ1234");
 - name: '[EXCLUE] without whitelist'
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
     ,\n  //params_allowed:\"\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call runCode\
@@ -276,6 +313,7 @@ scenarios:
     \ the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
     assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec?gclid=1234\"\
     );"
+
 
 
 ___NOTES___
