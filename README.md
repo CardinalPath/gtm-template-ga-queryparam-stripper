@@ -12,5 +12,5 @@ This variable will help reduce [cardinality issues](https://support.google.com/a
 * Select "Exclude All Parameters" to ignore all parameters exept ones provided in the whitelist field
 * Select "Exclude Certain Parameters" if you want to select which parameter to exclude
 * Provide the variable that will have query parameters, eg. Page URL
-* Check "Force to Lowercasae" if you want to elminiate 
+* Check "Force to Lowercasae" if you want to reduce cardinality
 * Reference variable in the GA4 config tag (eg. page_location)
