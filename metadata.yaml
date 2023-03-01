@@ -2,9 +2,11 @@ homepage: "https://www.cardinalpath.com/"
 documentation: "https://github.com/CardinalPath/gtm-template-ga-queryparam-stripper/blob/main/README.md"
 versions:
 # Latest version
+- sha:  b0d1db776876d2f48340a3693462ae426f8eb6c8
+  changeNotes: 3 | validate input URL, preserve marketing parameters is now optional
+# Olderversion
 - sha:  d0d212f43a19b5c1b93b2416ad5784cc6bc7e4ed
   changeNotes: 2.0 | allowed setting so certain parameters cannot be forced to lower case, removed duplicate parameters.
-# Olderversion
 - sha:  971347a6c2a16e4657085fb431ffde335ab75e72
   changeNotes: 1.3 | added default allowed query params as per https://github.com/CardinalPath/gtm-template-ga-queryparam-stripper/issues/1
 - sha:  8ece057500f7cdf6819dc39d142966cae0f8231e
