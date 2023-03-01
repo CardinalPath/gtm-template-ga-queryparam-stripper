@@ -43,9 +43,12 @@ ___TEMPLATE_PARAMETERS___
             "valueHint": "param1,param2"
           },
           {
-            "type": "LABEL",
-            "name": "note",
-            "displayName": "These parameters are automatically allowed:  dclid,gclsrc,gclid,gbraid,wbraid,gclsrc,srsltid,utm_source, utm_content, utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic"
+            "type": "TEXT",
+            "name": "tracking_parameters",
+            "displayName": "Preserve known tracking parameters (also allowed)",
+            "simpleValueType": true,
+            "defaultValue": "gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid",
+            "help": "List any advertising tracking parameters that need to be preserved.\nRecommended value include: gbraid,dclid,gclsrc,gclid,wbraid,utm_source, utm_content,utm_id,utm_medium,utm_campaign, utm_term,utm_source_platform,utm_creative_format, utm_marketing_tactic,srsltid"
           }
         ]
       },
@@ -74,6 +77,12 @@ ___TEMPLATE_PARAMETERS___
     "valueValidators": [
       {
         "type": "NON_EMPTY"
+      },
+      {
+        "type": "REGEX",
+        "args": [
+          "^[(http)(https)]://"
+        ]
       }
     ]
   },
@@ -86,7 +95,7 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "TEXT",
         "name": "lowercase_exclusions",
-        "displayName": "Lower Case Exclusions",
+        "displayName": "Lower Case Exclusions (case sensitive parameters)",
         "simpleValueType": true,
         "enablingConditions": [
           {
@@ -142,12 +151,16 @@ function getFinalURL(data){  // omit query parmams that should be excluded
 }
 
 const urlObject = parseUrl(data.document_location);
-data.url_noparams=urlObject.protocol+"//"+urlObject.hostname+urlObject.pathname;
-data.detected_query_params_array = Object.entries(urlObject.searchParams);
-
-if(data.lowercase){
-  data.document_location=data.document_location.toLowerCase();
-  urlObject.searchParams=toLowerKeys(urlObject.searchParams);
+if(urlObject!=undefined){
+  data.url_noparams=urlObject.protocol+"//"+urlObject.hostname+urlObject.pathname;
+  data.detected_query_params_array = Object.entries(urlObject.searchParams);
+  if(data.lowercase){
+    data.document_location=data.document_location.toLowerCase();
+    urlObject.searchParams=toLowerKeys(urlObject.searchParams);
+  } 
+}else{
+  data.url_noparams="";
+  data.detected_query_params_array="";
 }
 
 if(data.param_setting=="exclude"){
@@ -161,7 +174,12 @@ if(data.param_setting=="exclude"){
     }else{
       data.allowed_param_list=[];
     }
-    data.allowed_param_list.push("gbraid","dclid","gclsrc","gclid","wbraid","utm_source","utm_content","utm_id","utm_medium","utm_campaign","utm_term","utm_source_platform","utm_creative_format","utm_marketing_tactic","srsltid");
+
+    if(data.tracking_parameters==undefined){
+      data.tracking_parameters=""; 
+    }
+    data.allowed_param_list=data.allowed_param_list.concat(data.tracking_parameters.split(","));
+    
     if(data.allowed_param_list!=undefined){
     data.allowed_params_detected=[];  
     for (let i = 0; i < data.allowed_param_list.length; i++) {
@@ -234,7 +252,6 @@ ___WEB_PERMISSIONS___
 
 ___TESTS___
 
-
 scenarios:
 - name: '[INCLUDE] multiple params'
   code: |-
@@ -276,7 +293,7 @@ scenarios:
       params_allowed:"",
       param_setting:"exclude",
       lowercase:true,
-      lowercase_exclusions:"gclid"
+      lowercase_exclusions:"gclid", tracking_parameters:"gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid"
     };
 
     // Call runCode to run the template's code.
@@ -286,10 +303,11 @@ scenarios:
     //assertThat(result).isNotEqualTo(undefined);
     assertThat(result).isEqualTo("https://www.domain.com/?gclid=abcdefGHIJ1234&utm_medium=test");
 - name: '[EXCLUDE] multiple parameters'
-  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true\"\
-    ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call\
-    \ runCode to run the template's code.\nlet variableResult = runCode(mockData);\n\
-    \n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
+  code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&wbraid=1\"\
+    ,\n  params_allowed:\"foo,test\",\n  param_setting:\"exclude\",  tracking_parameters:\"\
+    gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid\"\
+    \n  \n};\n\n// Call runCode to run the template's code.\nlet variableResult =\
+    \ runCode(mockData);\n\n// Verify that the variable returns a result.\nassertThat(variableResult).isNotEqualTo(undefined);"
 - name: '[EXCLUDE] gclid'
   code: |-
     const mockData = {
@@ -298,7 +316,8 @@ scenarios:
       params_allowed:"foo,test",
       param_setting:"exclude",
       lowercase:true,
-      lowercase_exclusions:"gclid"
+      lowercase_exclusions:"gclid",
+      tracking_parameters:"gclid"
     };
 
     // Call runCode to run the template's code.
@@ -308,14 +327,13 @@ scenarios:
     assertThat(variableResult).isStrictlyEqualTo("https://www.domain.com/404-symantec?foo=bar&test=true&gclid=abcdefGHIJ1234");
 - name: '[EXCLUE] without whitelist'
   code: "const mockData = {\n  // Mocked field values\n  document_location:\"https://www.domain.com/404-symantec?sourceURL=http://symantec.com/nothing&foo=bar&test=true&app=true&gclid=1234\"\
-    ,\n  //params_allowed:\"\",\n  param_setting:\"exclude\"\n  \n};\n\n// Call runCode\
-    \ to run the template's code.\nlet result = runCode(mockData);\n\n// Verify that\
-    \ the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
+    ,\n  //params_allowed:\"\",\n  param_setting:\"exclude\",\n  tracking_parameters:\"\
+    gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid\"\
+    \n  \n};\n\n// Call runCode to run the template's code.\nlet result = runCode(mockData);\n\
+    \n// Verify that the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
     assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec?gclid=1234\"\
     );"
-
-
-
+    
 ___NOTES___
 
 Created on 6/16/2022, 10:28:43 AM
