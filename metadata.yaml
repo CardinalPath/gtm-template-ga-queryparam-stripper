@@ -2,7 +2,7 @@ homepage: "https://www.cardinalpath.com/"
 documentation: "https://github.com/CardinalPath/gtm-template-ga-queryparam-stripper/blob/main/README.md"
 versions:
 # Latest version
-- sha:  b0d1db776876d2f48340a3693462ae426f8eb6c8
+- sha:  7e3b679c051a366c9597671e4eea8b44211cbb21
   changeNotes: 3 | validate input URL, preserve marketing parameters is now optional
 # Olderversion
 - sha:  d0d212f43a19b5c1b93b2416ad5784cc6bc7e4ed
