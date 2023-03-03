@@ -111,6 +111,8 @@ ___TEMPLATE_PARAMETERS___
     ]
   }
 ]
+
+
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
 //const log = require('logToConsole');
@@ -223,32 +225,6 @@ if(data.param_setting=="exclude"){
   } 
 }
 
-___WEB_PERMISSIONS___
-
-[
-  {
-    "instance": {
-      "key": {
-        "publicId": "logging",
-        "versionId": "1"
-      },
-      "param": [
-        {
-          "key": "environments",
-          "value": {
-            "type": 1,
-            "string": "debug"
-          }
-        }
-      ]
-    },
-    "clientAnnotations": {
-      "isEditedByUser": true
-    },
-    "isRequired": true
-  }
-]
-
 
 ___TESTS___
 
@@ -333,7 +309,8 @@ scenarios:
     \n// Verify that the variable returns a result.\nassertThat(result).isNotEqualTo(undefined);\n\
     assertThat(result).isEqualTo(\"https://www.domain.com/404-symantec?gclid=1234\"\
     );"
-    
+
+
 ___NOTES___
 
 Created on 6/16/2022, 10:28:43 AM
