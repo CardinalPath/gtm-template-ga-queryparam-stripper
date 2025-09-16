@@ -47,7 +47,7 @@ ___TEMPLATE_PARAMETERS___
             "name": "tracking_parameters",
             "displayName": "Preserve known tracking parameters (also allowed)",
             "simpleValueType": true,
-            "defaultValue": "gad_source,gad_campaignid,gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid",
+            "defaultValue": "srsltid,gad_source,gad_campaignid,gbraid,dclid,gclsrc,gclid,wbraid,utm_source,utm_content,utm_id,utm_medium,utm_campaign,utm_term,utm_source_platform,utm_creative_format,utm_marketing_tactic,srsltid",
             "help": "List any advertising tracking parameters that need to be preserved.\nRecommended value include: gbraid,dclid,gclsrc,gclid,wbraid,utm_source, utm_content,utm_id,utm_medium,utm_campaign, utm_term,utm_source_platform,utm_creative_format, utm_marketing_tactic,srsltid"
           }
         ]
