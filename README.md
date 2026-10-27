@@ -6,12 +6,12 @@ __*Courtesy of Merkle | Cardinal Path*__ - [http://cardinalpath.com/](https://ww
 
 ## Introduction
 
-This variable will help reduce [cardinality issues](https://support.google.com/analytics/answer/9309767?hl=en]) with GA4 properties due high volume websites that also use query parameters.
+This variable will help reduce [cardinality issues](https://support.google.com/analytics/answer/9309767?hl=en) with GA4 properties due to high volume websites that also use query parameters.
 
 ## Setup Instructions
-* Select "Exclude All Parameters" to ignore all parameters exept ones provided in the whitelist field
+* Select "Exclude All Parameters" to ignore all parameters except ones provided in the whitelist field
 * Select "Exclude Certain Parameters" if you want to select which parameter to exclude
 * Provide the variable that will have query parameters, eg. Page URL
-* Check "Force to Lowercasae" if you want to reduce cardinality
+* Check "Force to Lowercase" if you want to reduce cardinality
 * Configure "Lower case exclusions" for allowed parameters that are case sensitive
 * Reference variable in the GA4 config tag (eg. page_location), must be a valid URL
